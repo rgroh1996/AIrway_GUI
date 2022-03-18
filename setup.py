@@ -37,5 +37,10 @@ setup(
         "Source": "https://github.com/rgroh1996/AIrway_GUI",
         "Tracker": "https://github.com/rgroh1996/AIrway_GUI/issues",
     },
+    entry_points={
+        'console_scripts': [
+            'airway-gui = AIrway_GUI.main:main'
+        ]
+    },
     include_package_data=True,
 )

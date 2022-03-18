@@ -6,15 +6,16 @@ from pathlib import Path
 import flammkuchen as fl
 import os
 from datetime import datetime
+import json
 
-from widgets.table_widget import TableWidget
-from widgets.annotate_precise_widget import AnnotatePreciseWidget
-from widgets.player_controls import PlayerControls
-from widgets.bar_graph_widget import BarGraphWindow
+from AIrway_GUI.widgets.table_widget import TableWidget
+from AIrway_GUI.widgets.annotate_precise_widget import AnnotatePreciseWidget
+from AIrway_GUI.widgets.player_controls import PlayerControls
+from AIrway_GUI.widgets.bar_graph_widget import BarGraphWindow
 
-from helpers.data_handler import DataHandler
-from helpers.audio_player import AudioPlayer
-from helpers.calculate_md5_hash import get_md5_hash
+from AIrway_GUI.helpers.data_handler import DataHandler
+from AIrway_GUI.helpers.audio_player import AudioPlayer
+from AIrway_GUI.helpers.calculate_md5_hash import get_md5_hash
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -24,6 +25,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.filename = None
         self.initialized = False
         self.save_path = None
+
+        with open("setup.json") as f:
+            self.setup = json.load(f)
 
         # open dialog to find out if the user wants to load new data or continue on previous loaded data
         self.menu = self.menuBar()
@@ -364,7 +368,7 @@ def set_palette(app_):
     app_.setPalette(palette)
 
 
-if __name__ == '__main__':
+def main():
     sys.excepthook = except_hook
     app = QtWidgets.QApplication([])
     # Force the style to be the same on all OSs:
@@ -373,3 +377,7 @@ if __name__ == '__main__':
     gui = MainWindow()
     gui.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
