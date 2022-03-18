@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
-import numpy as np
 
 
 class BarGraphWindow(QtWidgets.QWidget):
