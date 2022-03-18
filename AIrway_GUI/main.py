@@ -8,14 +8,14 @@ import os
 from datetime import datetime
 import json
 
-from AIrway_GUI.widgets.table_widget import TableWidget
-from AIrway_GUI.widgets.annotate_precise_widget import AnnotatePreciseWidget
-from AIrway_GUI.widgets.player_controls import PlayerControls
-from AIrway_GUI.widgets.bar_graph_widget import BarGraphWindow
+from .widgets.table_widget import TableWidget
+from .widgets.annotate_precise_widget import AnnotatePreciseWidget
+from .widgets.player_controls import PlayerControls
+from .widgets.bar_graph_widget import BarGraphWindow
 
-from AIrway_GUI.helpers.data_handler import DataHandler
-from AIrway_GUI.helpers.audio_player import AudioPlayer
-from AIrway_GUI.helpers.calculate_md5_hash import get_md5_hash
+from .helpers.data_handler import DataHandler
+from .helpers.audio_player import AudioPlayer
+from .helpers.calculate_md5_hash import get_md5_hash
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -88,9 +88,10 @@ class MainWindow(QtWidgets.QMainWindow):
     ##################################################################################
 
     def _import(self):
-        self._ask_save()
+        if self._ask_save() is False:
+            return
 
-        fn = QtWidgets.QFileDialog.getOpenFileName(
+        fn = QtWidgets.QFileDialog.getOpenFileName(self, "Import and load new .wav file",
             directory=str(self.directory) if self.directory else "", filter="*.wav")[0]
         if not fn:
             return
@@ -111,9 +112,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self._init_ui()
 
     def _open(self):
-        self._ask_save()
+        if self._ask_save() is False:
+            return
 
-        fn = QtWidgets.QFileDialog.getOpenFileName(
+        fn = QtWidgets.QFileDialog.getOpenFileName(self, "Open and load new .airway file",
             directory=str(self.directory) if self.directory else "", filter="*.airway")[0]
         if not fn:
             return
@@ -123,13 +125,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.directory = d_path.parent
         self.filename = d_path.stem
         dict_ = fl.load(str(d_path))
-        if os.path.exists(dict_['Filename']):
-            if get_md5_hash(dict_['Filename']) != dict_['FileHash']:
+        wav_file_path = str(d_path.parent) + '/' + dict_['Filename']
+        if os.path.exists(wav_file_path):
+            if get_md5_hash(wav_file_path) != dict_['FileHash']:
                 self._error_messagebox(f'File with name "{dict_["Filename"]}" is not the same used in "{d_path.name}" '
                                        f'(detected different MD5 hashes).')
                 return
             else:
-                audio_path = Path(str(d_path.parent) + '/' + dict_['Filename'])
+                audio_path = Path(wav_file_path)
         else:
             self._error_messagebox(f'Corresponding filename "{dict_["Filename"]}" not found. '
                                    f'Please make sure it is in the same directory as "{d_path.name}".')
@@ -224,7 +227,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.bar_graph_action.setChecked(False)
             return
 
-        print(self.filename)
         fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Annotations as .csv',
                                                    directory=str(
                                                        self.directory) + '/' + self.filename if self.directory else self.filename,

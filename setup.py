@@ -21,7 +21,8 @@ setup(
         "flammkuchen",
         "pyqt5",
         "scipy",
-        "simpleaudio"
+        "simpleaudio",
+        "pandas"
     ],
 
     classifiers=[
