@@ -6,7 +6,6 @@ from pathlib import Path
 import flammkuchen as fl
 import os
 from datetime import datetime
-import json
 
 from .widgets.table_widget import TableWidget
 from .widgets.annotate_precise_widget import AnnotatePreciseWidget
@@ -53,7 +52,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(200, 150, 1300, 800)
         # self.setWindowIcon(QtGui.QIcon(' '))
         self.setWindowTitle("AIrway - Preview, annotate and analyze data")
-        self.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+        self.setWindowIcon(QtGui.QIcon("AIrway_GUi/images/logo.png"))
 
     def _init_ui(self):
         # create main layouts/widgets
