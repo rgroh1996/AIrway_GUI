@@ -5,10 +5,12 @@ import sys
 from pathlib import Path
 import flammkuchen as fl
 import os
+from datetime import datetime
 
 from widgets.table_widget import TableWidget
 from widgets.annotate_precise_widget import AnnotatePreciseWidget
 from widgets.player_controls import PlayerControls
+from widgets.bar_graph_widget import BarGraphWindow
 
 from helpers.data_handler import DataHandler
 from helpers.audio_player import AudioPlayer
@@ -31,8 +33,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_file.addAction("Save", self._save)
         self.menu_file.addAction("Close/Exit", self._close)
 
-        self.menu_setting = self.menu.addMenu("&Settings")
-        # self.menu_setting.addAction("Change window size", )
+        self.menu_extras = self.menu.addMenu("&Extras")
+        self.bar_graph_action = QtWidgets.QAction("Show Bar Graph", self)
+        self.bar_graph_action.triggered.connect(self._open_bar_graph_window)
+        self.bar_graph_action.setCheckable(True)
+        self.menu_extras.addAction(self.bar_graph_action)
+
+        self.menu_extras.addAction("Export Annotations (.csv)", self._export_annotated_events_csv)
+        self.menu_extras.addAction("Export Annotations (.wav)", self._export_annotated_events_wav)
+
+        # variables for "Extras" menu point
+        self.bar_graph_window = None
 
         # init some variables
         self.data_handler = None
@@ -60,7 +71,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.main_layout.addWidget(self.annotate_precise_widget, 1, 0, 1, 1)
 
         # add table widget
-        table_widget = TableWidget(self.audio_player, self.data_handler, self.annotate_precise_widget)
+        table_widget = TableWidget(self.audio_player, self.data_handler, self.annotate_precise_widget, self)
         self.data_handler.table_widget = table_widget
         self.main_layout.addWidget(table_widget, 0, 1, 3, 1)
 
@@ -108,6 +119,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         d_path = Path(fn)
         self.save_path = d_path
+        self.directory = d_path.parent
+        self.filename = d_path.stem
         dict_ = fl.load(str(d_path))
         if os.path.exists(dict_['Filename']):
             if get_md5_hash(dict_['Filename']) != dict_['FileHash']:
@@ -135,31 +148,118 @@ class MainWindow(QtWidgets.QMainWindow):
             self.data_handler.load_annotations(dict_)
 
     def _save(self):
+        if self.initialized is False:
+            self._error_messagebox("Please load and annotate data first.")
+            self.bar_graph_action.setChecked(False)
+            return
+
         if self.save_path is None:
             fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Annotations',
                                                        directory=str(
                                                            self.directory) + '/' + self.filename if self.directory else self.filename,
                                                        filter="*.airway")[0]
             if not fn:
-                return
+                return False
             self.save_path = fn
-
-        print("Saving to: ", self.save_path)
+        else:
+            reply = QtWidgets.QMessageBox.question(self, 'Save', f'Save to file {Path(self.save_path).name}?',
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.Yes)
+            if reply == QtWidgets.QMessageBox.No:
+                fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Annotations',
+                                                           directory=str(
+                                                               self.directory) + '/' + self.filename if self.directory else self.filename,
+                                                           filter="*.airway")[0]
+                if not fn:
+                    return False
+                self.save_path = fn
         self.data_handler.save(self.save_path)
-
-        msg = QtWidgets.QMessageBox()
-        msg.setWindowTitle('Saving')
-        msg.setText(f'Saved annotations to \n "{self.save_path}"')
-        msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.setWindowIcon(QtGui.QIcon("images/logo.png"))
-        msg.exec_()
+        self.saving_successful_messagebox(self.save_path)
+        return True
 
     def _close(self):
-        self._ask_save()
+        self.close_bar_graph_window()
+        if not self._ask_save():
+            return
         self.close()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self._ask_save()
+        self.close_bar_graph_window()
+        if not self._ask_save():
+            a0.ignore()
+
+    ##################################################################################
+    # Extras
+    ##################################################################################
+    def _open_bar_graph_window(self):
+        if self.initialized is False:
+            self._error_messagebox("Please load data first.")
+            self.bar_graph_action.setChecked(False)
+            return
+
+        if self.bar_graph_window is None:
+            self.bar_graph_action.setChecked(True)
+            self.bar_graph_window = BarGraphWindow(self)
+            self.bar_graph_window.setFixedSize(400, 300)
+            self.bar_graph_window.setWindowTitle("AIrway")
+            self.bar_graph_window.setWindowIcon(QtGui.QIcon("images/logo.png"))
+            self.bar_graph_window.show()
+        else:
+            self.close_bar_graph_window()
+
+    def close_bar_graph_window(self):
+        if self.bar_graph_window is not None:
+            self.bar_graph_action.setChecked(False)
+            self.bar_graph_window.close()
+            self.bar_graph_window = None
+
+    def update_bar_graph_window(self):
+        if self.bar_graph_window is not None:
+            self.bar_graph_window.reload_graph()
+
+    def _export_annotated_events_csv(self):
+        if self.initialized is False:
+            self._error_messagebox("Please load data first.")
+            self.bar_graph_action.setChecked(False)
+            return
+
+        print(self.filename)
+        fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Annotations as .csv',
+                                                   directory=str(
+                                                       self.directory) + '/' + self.filename if self.directory else self.filename,
+                                                   filter="*.csv")[0]
+        if not fn:
+            return
+        # save all events to the created folder
+        self.data_handler.save_annotated_events_csv(fn)
+        self.saving_successful_messagebox(fn)
+
+    def _export_annotated_events_wav(self):
+        if self.initialized is False:
+            self._error_messagebox("Please load data first.")
+            self.bar_graph_action.setChecked(False)
+            return
+
+        fn = QtWidgets.QFileDialog.getExistingDirectory(self, 'Export Annotations as .wav',
+                                                        directory=str(self.directory) if self.directory else "")
+        if not fn:
+            return
+        # create new folder
+        folder_name = "Annotated_Events_" + str(datetime.now().strftime("%d%m%Y_%H%M%S"))
+        path = os.path.join(fn, folder_name)
+        os.mkdir(path)
+        # save all events to the created folder
+        self.data_handler.save_annotated_events_wav(path)
+        self.saving_successful_messagebox(path)
+
+    @staticmethod
+    def saving_successful_messagebox(path):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle('Saving')
+        msg.setText(f'Saved annotations to \n "{path}"')
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setWindowIcon(QtGui.QIcon("images/logo.png"))
+        msg.exec_()
 
     ##################################################################################
     # Helper
@@ -177,10 +277,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def _ask_save(self):
         if self.initialized:
             reply = QtWidgets.QMessageBox.question(self, 'Save', 'Do you want to save?',
-                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                                   QtWidgets.QMessageBox.No)
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
+                                                   QtWidgets.QMessageBox.Yes)
             if reply == QtWidgets.QMessageBox.Yes:
-                self._save()
+                return self._save()
+            elif reply == QtWidgets.QMessageBox.Cancel:
+                return False
+            elif reply == QtWidgets.QMessageBox.No:
+                reply = QtWidgets.QMessageBox.question(self, 'Save', 'Are you sure that you want to close without '
+                                                                     'saving? (Unsaved content will get lost!)',
+                                                       QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                       QtWidgets.QMessageBox.No)
+                if reply == QtWidgets.QMessageBox.No:
+                    return False
+        return True
 
     ##################################################################################
     # Shortcuts
@@ -199,8 +309,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         event_keys = [Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7,
                       Qt.Key_8, Qt.Key_9, Qt.Key_Q, Qt.Key_S]
-        for key in event_keys:
-            event = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
+        for shortcut in self.data_handler.setup['shortcuts']:
+            event = QtWidgets.QShortcut(QtGui.QKeySequence(shortcut), self)
             event.activated.connect(self._add_precise_event)
             event.setContext(QtCore.Qt.ShortcutContext.WindowShortcut)
 
@@ -221,12 +331,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _add_precise_event(self):
         pressed_key = self.sender().key().toString()
-        if pressed_key == 'S':
-            self.data_handler.add_precise_event(event_idx=8)
-        elif pressed_key == 'Q':
-            self.data_handler.add_precise_event(event_idx=9)
-        else:
-            self.data_handler.add_precise_event(event_idx=int(pressed_key) - 1)
+        idx = 0
+        for shortcut in self.data_handler.setup['shortcuts']:
+            if pressed_key == shortcut:
+                self.data_handler.add_precise_event(event_idx=idx)
+            else:
+                idx += 1
 
 
 def except_hook(cls, exception, traceback):

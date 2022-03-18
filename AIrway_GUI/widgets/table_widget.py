@@ -8,11 +8,12 @@ class TableWidget(QtWidgets.QWidget):
     """
     Class containing everything for displaying annotated events inside a TableWidget.
     """
-    def __init__(self, audio_player, data_handler, annotate_precise_widget):
+    def __init__(self, audio_player, data_handler, annotate_precise_widget, main_window):
         super().__init__()
         self._audio_player = audio_player
         self._data_handler = data_handler
         self.annotate_precise_widget = annotate_precise_widget
+        self.main_window = main_window
 
         self.main_layout = QtWidgets.QVBoxLayout()
 
@@ -142,6 +143,9 @@ class TableWidget(QtWidgets.QWidget):
                 self.table.item(i, j).setBackground(color)
 
         self.scroll_to_index(len(self._data_handler.table_data) - 1)
+
+        # update bar graph window
+        self.main_window.update_bar_graph_window()
 
     def scroll_to_index(self, index):
         index_to_scroll = self.table.model().index(index, 0)

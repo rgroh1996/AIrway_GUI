@@ -27,15 +27,19 @@ class AnnotateButtonsWidget(QtWidgets.QFrame):
         self.container.addWidget(next_event_button)
         self.main_layout.addLayout(self.container)
 
-        self.buttons_class_labels = ['(S) - Speech', '(1) - wet cough', '(2) - dry cough', '(3) - throat clearing',
-                                     '(4) - dry swallow', '(Q) - Silence', '(5) - wheeze', '(6) - sneeze',
-                                     '(7) - short of breath', '(8) - voice quality']
+        self.buttons_class_labels = []
+        for shortcut, class_ in zip(self._data_handler.setup['shortcuts'], self._data_handler.setup['classes']):
+            self.buttons_class_labels.append(f'({shortcut}) {class_}')
 
         classes_buttons_layout = QtWidgets.QGridLayout()
         classes_buttons_layout.setSpacing(10)  # No Spacing
         classes_buttons_layout.setContentsMargins(20, 0, 0, 0)
-        for x in range(2):
+        x = 0
+        idx = 0
+        while True:
             for y in range(5):
+                if idx >= len(self.buttons_class_labels):
+                    break
                 button = QtWidgets.QPushButton(self.buttons_class_labels[x*5 + y])
                 button.setStyleSheet("QPushButton {border-style: outset; border-width: 2px; border-radius: 12px; "
                                      "border-color: black; padding: 4px; background-color: #DBDBDB; color: black}"
@@ -45,6 +49,10 @@ class AnnotateButtonsWidget(QtWidgets.QFrame):
                 button.setFixedHeight(50)
                 button.clicked.connect(self.annotate_event_button_pressed)
                 classes_buttons_layout.addWidget(button, x, y)
+                idx += 1
+            x += 1
+            if idx >= len(self.buttons_class_labels):
+                break
         self.main_layout.addLayout(classes_buttons_layout)
 
         self.setLayout(self.main_layout)

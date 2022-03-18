@@ -4,8 +4,11 @@ from PyQt5 import QtWidgets
 import pyqtgraph as pg
 import copy
 import flammkuchen as fl
-from scipy.io.wavfile import read
+from scipy.io.wavfile import read, write
 import simpleaudio as sa
+import json
+import os
+import datetime
 
 from .calculate_md5_hash import get_md5_hash
 from .region_item import RegionItem
@@ -23,6 +26,10 @@ class DataHandler(QtWidgets.QFrame):
         self.audio_data = None
         self.audio_rate = None
 
+        # load setup.json
+        with open("setup.json") as f:
+            self.setup = json.load(f)
+
         # needed for play/stop button event
         self.play_obj = None
 
@@ -38,8 +45,7 @@ class DataHandler(QtWidgets.QFrame):
         self.table_data = pd.DataFrame(columns=['Initial', 'From', 'To', 'Event', 'Selected', 'Region'])
 
         # set of possible events
-        self.events = ['wet_cough', 'dry_cough', 'throat_clear', 'dry_swallow', 'wheeze',
-                       'sneeze', 'short_of_breath', 'voice_quality', 'speech', 'silence']
+        self.events = self.setup['classes']
 
         self._load_data()
 
@@ -52,10 +58,11 @@ class DataHandler(QtWidgets.QFrame):
         """
         print(self.path)
         try:
-            self.audio_rate, self.audio_data = read(self.path)
+            self.audio_rate, self.audio_data_original = read(self.path)
         except:
             raise Exception(f"Can't load the file. ({self.path})")
 
+        self.audio_data = self.audio_data_original
         if len(self.audio_data.shape) == 2:
             self.audio_data = self.audio_data[:, 0]
 
@@ -80,6 +87,32 @@ class DataHandler(QtWidgets.QFrame):
 
         d = {'Filename': self.path.name, 'FileHash': get_md5_hash(self.path), 'DataFrame': df}
         fl.save(path, d)
+
+    def save_annotated_events_wav(self, path):
+        """ Method for saving each annotated event in an own .wav-file. """
+        for class_ in self.events:
+            class_path = os.path.join(path, class_)
+            os.mkdir(class_path)
+            idx = 0
+            for index, row in self.table_data.iterrows():
+                if row['Event'] == class_:
+                    data = self.audio_data_original[row['From']:row['To'], ...]
+                    write(filename=os.path.join(class_path, f"{class_}_{idx}.wav"), rate=self.audio_rate, data=data)
+                    idx += 1
+
+    def save_annotated_events_csv(self, path):
+        """ Method for saving all annotations to a .csv-file. """
+        df = copy.deepcopy(self.table_data)
+        for index, row in df.iterrows():
+            milliseconds_from = str(datetime.timedelta(milliseconds=(row["From"] / self.audio_rate) * 1000))[:-4]
+            milliseconds_to = str(datetime.timedelta(milliseconds=(row["To"] / self.audio_rate) * 1000))[:-4]
+            df.loc[index, 'From'] = milliseconds_from + f" ({row['From']})"
+            df.loc[index, 'To'] = milliseconds_to + f" ({row['To']})"
+
+        del df['Region']
+        del df['Selected']
+        del df['Initial']
+        df.to_csv(path, sep=';')
 
     ##################################################################################
     # Methods that modify the DataFrame through window events
@@ -111,7 +144,7 @@ class DataHandler(QtWidgets.QFrame):
 
     def add_precise_event(self, event_idx):
         """
-        Methods adds an precisely annotated event ('green' event).
+        Methods adds a precisely annotated event ('green' event).
         """
         # first check if we want to annotate an already selected region
         for index, row in self.table_data.iterrows():
@@ -244,6 +277,27 @@ class DataHandler(QtWidgets.QFrame):
         """ Set visible false and true as workaround to update the regions color inside the PyGraphItem """
         region.setVisible(False)
         region.setVisible(True)
+
+    ##################################################################################
+    # Methods to get data for Bar Graph Window
+    ##################################################################################
+    def get_bar_graph_data(self, flag='length'):
+        if flag is not 'count' and flag is not 'length':
+            raise ValueError("Parameter 'flag' is not valid.")
+
+        y_data = np.zeros(10)
+        for index, event in enumerate(self.events):
+            for _, row in self.table_data.iterrows():
+                if row['Event'] == event:
+                    if flag == 'count':
+                        y_data[index] += 1
+                    elif flag == 'length':
+                        length = row['To'] - row['From']
+                        y_data[index] += length
+        if max(y_data) == 0:
+            return y_data
+        else:
+            return y_data / max(y_data)
 
 
 
