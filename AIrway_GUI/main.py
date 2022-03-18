@@ -26,9 +26,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.initialized = False
         self.save_path = None
 
-        with open("setup.json") as f:
-            self.setup = json.load(f)
-
         # open dialog to find out if the user wants to load new data or continue on previous loaded data
         self.menu = self.menuBar()
         self.menu_file = self.menu.addMenu("&File")
@@ -56,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(200, 150, 1300, 800)
         # self.setWindowIcon(QtGui.QIcon(' '))
         self.setWindowTitle("AIrway - Preview, annotate and analyze data")
-        self.setWindowIcon(QtGui.QIcon("images/logo.png"))
+        self.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
 
     def _init_ui(self):
         # create main layouts/widgets
@@ -206,7 +203,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.bar_graph_window = BarGraphWindow(self)
             self.bar_graph_window.setFixedSize(400, 300)
             self.bar_graph_window.setWindowTitle("AIrway")
-            self.bar_graph_window.setWindowIcon(QtGui.QIcon("images/logo.png"))
+            self.bar_graph_window.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
             self.bar_graph_window.show()
         else:
             self.close_bar_graph_window()
@@ -262,7 +259,7 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setWindowTitle('Saving')
         msg.setText(f'Saved annotations to \n "{path}"')
         msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.setWindowIcon(QtGui.QIcon("images/logo.png"))
+        msg.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
         msg.exec_()
 
     ##################################################################################
@@ -275,7 +272,7 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setWindowTitle('Error')
         msg.setText(error_msg)
         msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setWindowIcon(QtGui.QIcon("images/logo.png"))
+        msg.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
         msg.exec_()
 
     def _ask_save(self):

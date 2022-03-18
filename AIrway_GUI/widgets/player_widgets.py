@@ -12,10 +12,10 @@ class PlayerButtonsWidget(QtWidgets.QWidget):
         self._audio_player = self._data_handler.audio_player
         self._audio_player.stateChanged.connect(self._change_button_icon)
 
-        self.play_icon = QtGui.QIcon('images/play.png')
-        self.stop_icon = QtGui.QIcon('images/stop.png')
-        forward_icon = QtGui.QIcon('images/forward.png')
-        backward_icon = QtGui.QIcon('images/backward.png')
+        self.play_icon = QtGui.QIcon('AIrway_GUI/images/play.png')
+        self.stop_icon = QtGui.QIcon('AIrway_GUI/images/stop.png')
+        forward_icon = QtGui.QIcon('AIrway_GUI/images/forward.png')
+        backward_icon = QtGui.QIcon('AIrway_GUI/images/backward.png')
 
         button_functions = [self.backward_five_sec, self.toggle_play, self.forward_five_sec]
         button_icons = [backward_icon, self.play_icon, forward_icon]
