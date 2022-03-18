@@ -21,8 +21,7 @@ setup(
         "flammkuchen",
         "pyqt5",
         "scipy",
-        "simpleaudio",
-        "hashlib"
+        "simpleaudio"
     ],
 
     classifiers=[
