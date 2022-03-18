@@ -43,5 +43,6 @@ setup(
             'airway-gui = AIrway_GUI.main:main'
         ]
     },
+    package_data={'airway_gui': ['*.png', '*.json']},
     include_package_data=True,
 )
