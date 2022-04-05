@@ -52,7 +52,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(200, 150, 1300, 800)
         # self.setWindowIcon(QtGui.QIcon(' '))
         self.setWindowTitle("AIrway - Preview, annotate and analyze data")
-        self.setWindowIcon(QtGui.QIcon("AIrway_GUi/images/logo.png"))
+        self.setWindowIcon(QtGui.QIcon("../images/logo.png"))
 
     def _init_ui(self):
         # create main layouts/widgets
