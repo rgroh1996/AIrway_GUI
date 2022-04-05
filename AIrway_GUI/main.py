@@ -367,6 +367,7 @@ def set_palette(app_):
 
 
 def main():
+    print(os.getcwd())
     sys.excepthook = except_hook
     app = QtWidgets.QApplication([])
     # Force the style to be the same on all OSs:
