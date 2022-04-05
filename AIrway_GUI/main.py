@@ -52,7 +52,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(200, 150, 1300, 800)
         # self.setWindowIcon(QtGui.QIcon(' '))
         self.setWindowTitle("AIrway - Preview, annotate and analyze data")
-        self.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+        p_ = os.path.dirname(os.path.realpath(__file__))
+        self.setWindowIcon(QtGui.QIcon(p_ + "\\images\\logo.png"))
 
     def _init_ui(self):
         # create main layouts/widgets
@@ -367,7 +368,6 @@ def set_palette(app_):
 
 
 def main():
-    print(os.path.dirname(os.path.realpath(__file__)))
     sys.excepthook = except_hook
     app = QtWidgets.QApplication([])
     # Force the style to be the same on all OSs:
