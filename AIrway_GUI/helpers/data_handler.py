@@ -27,7 +27,9 @@ class DataHandler(QtWidgets.QFrame):
         self.audio_rate = None
 
         # load setup.json
-        with open("AIrway_GUI/setup.json") as f:
+        print(os.path.dirname(os.path.realpath(__file__)))
+        p_ = os.path.dirname(os.path.realpath(__file__))
+        with open(p_ + "/setup.json") as f:
             self.setup = json.load(f)
 
         # needed for play/stop button event
