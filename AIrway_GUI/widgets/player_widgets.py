@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
+import os
 
 
 class PlayerButtonsWidget(QtWidgets.QWidget):
@@ -12,10 +13,11 @@ class PlayerButtonsWidget(QtWidgets.QWidget):
         self._audio_player = self._data_handler.audio_player
         self._audio_player.stateChanged.connect(self._change_button_icon)
 
-        self.play_icon = QtGui.QIcon('AIrway_GUI/images/play.png')
-        self.stop_icon = QtGui.QIcon('AIrway_GUI/images/stop.png')
-        forward_icon = QtGui.QIcon('AIrway_GUI/images/forward.png')
-        backward_icon = QtGui.QIcon('AIrway_GUI/images/backward.png')
+        p_ = os.path.dirname(os.path.realpath(__file__))
+        self.play_icon = QtGui.QIcon(p_ + '\\..\\images\\play.png')
+        self.stop_icon = QtGui.QIcon(p_ + '\\..\\images\\stop.png')
+        forward_icon = QtGui.QIcon(p_ + '\\..\\images\\forward.png')
+        backward_icon = QtGui.QIcon(p_ + '\\..\\images\\backward.png')
 
         button_functions = [self.backward_five_sec, self.toggle_play, self.forward_five_sec]
         button_icons = [backward_icon, self.play_icon, forward_icon]
