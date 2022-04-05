@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.setWindowIcon(QtGui.QIcon(' '))
         self.setWindowTitle("AIrway - Preview, annotate and analyze data")
         p_ = os.path.dirname(os.path.realpath(__file__))
-        self.setWindowIcon(QtGui.QIcon(p_ + "\\images\\logo.png"))
+        self.setWindowIcon(QtGui.QIcon(p_ + "/images/logo.png"))
 
     def _init_ui(self):
         # create main layouts/widgets

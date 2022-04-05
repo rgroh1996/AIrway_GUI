@@ -28,7 +28,7 @@ class DataHandler(QtWidgets.QFrame):
 
         # load setup.json
         p_ = os.path.dirname(os.path.realpath(__file__))
-        with open(p_ + "\\..\\setup.json") as f:
+        with open(p_ + "/../setup.json") as f:
             self.setup = json.load(f)
 
         # needed for play/stop button event
