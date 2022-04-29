@@ -21,7 +21,7 @@ setup(
         "flammkuchen",
         "pyqt5",
         "scipy",
-        "simpleaudio",
+        "sounddevice",
         "pandas"
     ],
 
