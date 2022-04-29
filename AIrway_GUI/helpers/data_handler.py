@@ -5,7 +5,7 @@ import pyqtgraph as pg
 import copy
 import flammkuchen as fl
 from scipy.io.wavfile import read, write
-import simpleaudio as sa
+import sounddevice as sd
 import json
 import os
 import datetime
@@ -33,6 +33,7 @@ class DataHandler(QtWidgets.QFrame):
 
         # needed for play/stop button event
         self.play_obj = None
+        self.p = False
 
         # object will be initialized in class TableWidget
         self.table_widget = None
@@ -213,10 +214,12 @@ class DataHandler(QtWidgets.QFrame):
                     min_x = row['From']
                     max_x = row['To']
 
-            data_to_play = np.asarray(self.audio_data[int(min_x):int(max_x)], order='C')
+            data_to_play = np.ascontiguousarray(self.audio_data[int(min_x):int(max_x)])
             if len(data_to_play) == 0:
                 return
-            self.play_obj = sa.play_buffer(data_to_play, 1, 2, self.audio_rate)
+
+            sd.stop()
+            sd.play(data_to_play, self.audio_rate, blocking=False)
 
     def change_selected_region(self):
         """

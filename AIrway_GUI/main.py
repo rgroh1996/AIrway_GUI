@@ -1,3 +1,5 @@
+from fbs_runtime.application_context.PyQt5 import ApplicationContext
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
@@ -7,14 +9,14 @@ import flammkuchen as fl
 import os
 from datetime import datetime
 
-from .widgets.table_widget import TableWidget
-from .widgets.annotate_precise_widget import AnnotatePreciseWidget
-from .widgets.player_controls import PlayerControls
-from .widgets.bar_graph_widget import BarGraphWindow
+from widgets.table_widget import TableWidget
+from widgets.annotate_precise_widget import AnnotatePreciseWidget
+from widgets.player_controls import PlayerControls
+from widgets.bar_graph_widget import BarGraphWindow
 
-from .helpers.data_handler import DataHandler
-from .helpers.audio_player import AudioPlayer
-from .helpers.calculate_md5_hash import get_md5_hash
+from helpers.data_handler import DataHandler
+from helpers.audio_player import AudioPlayer
+from helpers.calculate_md5_hash import get_md5_hash
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -302,16 +304,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def init_shortcuts(self):
         keys_and_functions = [(Qt.Key_Return, self._add_event), (Qt.Key_Left, self._previous_event),
                               (Qt.Key_Right, self._next_event), (Qt.Key_P, self._play_region),
-                              (Qt.Key_Delete, self._delete_row), ("Ctrl+S", self._save),
-                              (Qt.Key_Space, self.player.player_buttons_widget.toggle_play)]
+                              (Qt.Key_Delete, self._delete_row), (Qt.Key_Backspace, self._delete_row),
+                              ("Ctrl+S", self._save), (Qt.Key_Space, self.player.player_buttons_widget.toggle_play)]
 
         for (key, function) in keys_and_functions:
             event = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
             event.activated.connect(function)
             event.setContext(QtCore.Qt.ShortcutContext.WindowShortcut)
 
-        event_keys = [Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7,
-                      Qt.Key_8, Qt.Key_9, Qt.Key_Q, Qt.Key_S]
+        # add shortcuts defined in setup.json to GUI
         for shortcut in self.data_handler.setup['shortcuts']:
             event = QtWidgets.QShortcut(QtGui.QKeySequence(shortcut), self)
             event.activated.connect(self._add_precise_event)
@@ -368,6 +369,7 @@ def set_palette(app_):
 
 
 def main():
+    appctxt = ApplicationContext()
     sys.excepthook = except_hook
     app = QtWidgets.QApplication([])
     # Force the style to be the same on all OSs:
@@ -375,7 +377,8 @@ def main():
     set_palette(app)
     gui = MainWindow()
     gui.show()
-    sys.exit(app.exec_())
+    exit_code = appctxt.app.exec()
+    sys.exit(exit_code)
 
 
 if __name__ == '__main__':

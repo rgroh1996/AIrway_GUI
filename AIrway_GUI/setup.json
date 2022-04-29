@@ -1,6 +1,7 @@
 {
     "classes": ["Wet cough", "Dry cough", "Throat clearing", "Dry swallow", "Speech", "Wheeze", "Sneeze", "Short of breath", "Voice quality", "Silence"],
     "shortcuts": ["1", "2", "3", "4", "S", "5", "6", "7", "8", "Q"],
+    "_comment": "DO NOT USE 'Key_P', 'Key_Return', 'Ctrl+Key_S', 'Key_Right', 'Key_Left', 'Key_Backspace' or 'Key_Space' AS SHORTCUTS FOR EVENTS SINCE THEY ARE ALREADY USED.",
 
     "annotatations_file_ending": ".airway"
 }

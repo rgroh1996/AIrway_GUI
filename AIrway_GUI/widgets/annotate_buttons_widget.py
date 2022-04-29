@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+import sounddevice as sd
 
 
 class AnnotateButtonsWidget(QtWidgets.QFrame):
@@ -16,14 +17,18 @@ class AnnotateButtonsWidget(QtWidgets.QFrame):
         previous_event_button = QtWidgets.QPushButton('(<-) - Previous Event')
         previous_event_button.clicked.connect(self.previous_event)
 
-        play_region_button = QtWidgets.QPushButton('(P) - Play/Pause')
+        play_region_button = QtWidgets.QPushButton('(P) - Play')
         play_region_button.clicked.connect(self.play_region)
+
+        stop_region_button = QtWidgets.QPushButton('Stop')
+        stop_region_button.clicked.connect(self.stop_region)
 
         next_event_button = QtWidgets.QPushButton('(->) - Next Event')
         next_event_button.clicked.connect(self.next_event)
 
         self.container.addWidget(previous_event_button)
         self.container.addWidget(play_region_button)
+        self.container.addWidget(stop_region_button)
         self.container.addWidget(next_event_button)
         self.main_layout.addLayout(self.container)
 
@@ -63,6 +68,10 @@ class AnnotateButtonsWidget(QtWidgets.QFrame):
         else:
             self._data_handler.play_selected_region()
 
+    @staticmethod
+    def stop_region():
+        sd.stop()
+
     def next_event(self):
         self._data_handler.select_previous_or_next_event(+1)
 
@@ -70,13 +79,10 @@ class AnnotateButtonsWidget(QtWidgets.QFrame):
         self._data_handler.select_previous_or_next_event(-1)
 
     def annotate_event_button_pressed(self):
-        sender = self.sender()
-        event = sender.text()[1]
-        if event == 'S':
-            event_idx = 8
-        elif event == 'Q':
-            event_idx = 9
-        else:
-            event_idx = int(event) - 1
-
-        self._data_handler.add_precise_event(event_idx)
+        pressed_key = self.sender().key().toString()
+        idx = 0
+        for shortcut in self._data_handler.setup['shortcuts']:
+            if pressed_key == shortcut:
+                self._data_handler.add_precise_event(event_idx=idx)
+            else:
+                idx += 1
