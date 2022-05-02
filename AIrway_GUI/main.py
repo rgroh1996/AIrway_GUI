@@ -1,5 +1,3 @@
-from fbs_runtime.application_context.PyQt5 import ApplicationContext
-
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
@@ -9,14 +7,14 @@ import flammkuchen as fl
 import os
 from datetime import datetime
 
-from widgets.table_widget import TableWidget
-from widgets.annotate_precise_widget import AnnotatePreciseWidget
-from widgets.player_controls import PlayerControls
-from widgets.bar_graph_widget import BarGraphWindow
+from python.widgets.table_widget import TableWidget
+from python.widgets.annotate_precise_widget import AnnotatePreciseWidget
+from python.widgets.player_controls import PlayerControls
+from python.widgets.bar_graph_widget import BarGraphWindow
 
-from helpers.data_handler import DataHandler
-from helpers.audio_player import AudioPlayer
-from helpers.calculate_md5_hash import get_md5_hash
+from python.helpers.data_handler import DataHandler
+from python.helpers.audio_player import AudioPlayer
+from python.helpers.calculate_md5_hash import get_md5_hash
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -369,7 +367,6 @@ def set_palette(app_):
 
 
 def main():
-    appctxt = ApplicationContext()
     sys.excepthook = except_hook
     app = QtWidgets.QApplication([])
     # Force the style to be the same on all OSs:
@@ -377,7 +374,7 @@ def main():
     set_palette(app)
     gui = MainWindow()
     gui.show()
-    exit_code = appctxt.app.exec()
+    exit_code = app.exec()
     sys.exit(exit_code)
 
 
