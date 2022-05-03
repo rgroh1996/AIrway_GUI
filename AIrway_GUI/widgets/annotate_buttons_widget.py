@@ -79,7 +79,10 @@ class AnnotateButtonsWidget(QtWidgets.QFrame):
         self._data_handler.select_previous_or_next_event(-1)
 
     def annotate_event_button_pressed(self):
-        pressed_key = self.sender().key().toString()
+        string = self.sender().text()
+        start = string.find("(")
+        end = string.find(")")
+        pressed_key = string[start+1:end]
         idx = 0
         for shortcut in self._data_handler.setup['shortcuts']:
             if pressed_key == shortcut:
