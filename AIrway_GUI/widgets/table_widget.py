@@ -102,7 +102,8 @@ class TableWidget(QtWidgets.QWidget):
             self.table.setRowCount(i + 1)
 
             checkbox = QtWidgets.QTableWidgetItem()
-            checkbox.setCheckState(QtCore.Qt.Checked if bool(row['Selected']) else QtCore.Qt.Unchecked)
+            # checkbox = QtWidgets.QWidgetItem()
+            # checkbox.setCheckState(QtCore.Qt.Checked if bool(row['Selected']) else QtCore.Qt.Unchecked)
             self.table.setItem(i, 0, checkbox)
 
             # convert start/end to a time format

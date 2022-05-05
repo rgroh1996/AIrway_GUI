@@ -98,7 +98,7 @@ class DataHandler(QtWidgets.QFrame):
             idx = 0
             for index, row in self.table_data.iterrows():
                 if row['Event'] == class_:
-                    data = self.audio_data_original[row['From']:row['To'], ...]
+                    data = self.audio_data_original[int(row['From']):int(row['To']), ...]
                     write(filename=os.path.join(class_path, f"{class_}_{idx}.wav"), rate=self.audio_rate, data=data)
                     idx += 1
 
@@ -146,7 +146,7 @@ class DataHandler(QtWidgets.QFrame):
 
     def add_precise_event(self, event_idx):
         """
-        Methods adds a precisely annotated event ('green' event).
+        Method adds a precisely annotated event ('green' event).
         """
         # first check if we want to annotate an already selected region
         for index, row in self.table_data.iterrows():
@@ -169,7 +169,7 @@ class DataHandler(QtWidgets.QFrame):
             msg.exec_()
             return
 
-        region = pg.LinearRegionItem()
+        region = RegionItem()
         region.setRegion([min_x, max_x])
         region.setMovable(False)
         region.sigRegionChanged.connect(self.change_selected_region)
