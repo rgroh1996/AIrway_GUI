@@ -7,14 +7,14 @@ import flammkuchen as fl
 import os
 from datetime import datetime
 
-from widgets.table_widget import TableWidget
-from widgets.annotate_precise_widget import AnnotatePreciseWidget
-from widgets.player_controls import PlayerControls
-from widgets.bar_graph_widget import BarGraphWindow
+from .widgets.table_widget import TableWidget
+from .widgets.annotate_precise_widget import AnnotatePreciseWidget
+from .widgets.player_controls import PlayerControls
+from .widgets.bar_graph_widget import BarGraphWindow
 
-from helpers.data_handler import DataHandler
-from helpers.audio_player import AudioPlayer
-from helpers.calculate_md5_hash import get_md5_hash
+from .helpers.data_handler import DataHandler
+from .helpers.audio_player import AudioPlayer
+from .helpers.calculate_md5_hash import get_md5_hash
 
 
 class MainWindow(QtWidgets.QMainWindow):
