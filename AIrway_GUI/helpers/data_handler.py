@@ -4,11 +4,13 @@ from PyQt5 import QtWidgets
 import pyqtgraph as pg
 import copy
 import flammkuchen as fl
-from scipy.io.wavfile import read, write
+from scipy.io.wavfile import write
 import sounddevice as sd
 import json
 import os
 import datetime
+import wavio
+from pathlib import Path
 
 from .calculate_md5_hash import get_md5_hash
 from .region_item import RegionItem
@@ -28,7 +30,7 @@ class DataHandler(QtWidgets.QFrame):
 
         # load setup.json
         p_ = os.path.dirname(os.path.realpath(__file__))
-        with open(p_ + "/../setup.json") as f:
+        with open("setup.json") as f:
             self.setup = json.load(f)
 
         # needed for play/stop button event
@@ -60,7 +62,9 @@ class DataHandler(QtWidgets.QFrame):
         """
         print(self.path)
         try:
-            self.audio_rate, self.audio_data_original = read(self.path)
+            w = wavio.read(str(Path(self.path).absolute()))
+            self.audio_data_original = w.data
+            self.audio_rate = w.rate
         except:
             raise Exception(f"Can't load the file. ({self.path})")
 

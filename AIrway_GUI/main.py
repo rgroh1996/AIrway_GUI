@@ -7,14 +7,8 @@ import flammkuchen as fl
 import os
 from datetime import datetime
 
-from .widgets.table_widget import TableWidget
-from .widgets.annotate_precise_widget import AnnotatePreciseWidget
-from .widgets.player_controls import PlayerControls
-from .widgets.bar_graph_widget import BarGraphWindow
-
-from .helpers.data_handler import DataHandler
-from .helpers.audio_player import AudioPlayer
-from .helpers.calculate_md5_hash import get_md5_hash
+import AIrway_GUI.widgets
+import AIrway_GUI.helpers
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -52,27 +46,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(200, 150, 1300, 800)
         # self.setWindowIcon(QtGui.QIcon(' '))
         self.setWindowTitle("AIrway - Preview, annotate and analyze data")
-        p_ = os.path.dirname(os.path.realpath(__file__))
-        self.setWindowIcon(QtGui.QIcon(p_ + "/images/logo.png"))
+        #p_ = os.path.dirname(os.path.realpath(__file__))
+        self.setWindowIcon(QtGui.QIcon("images/logo.png"))
 
     def _init_ui(self):
         # create main layouts/widgets
         self.main_widget = QtWidgets.QWidget()
         self.main_layout = QtWidgets.QGridLayout()
 
-        self.audio_player = AudioPlayer(self.data_handler)
+        self.audio_player = AIrway_GUI.helpers.AudioPlayer(self.data_handler)
         self.data_handler.audio_player = self.audio_player
 
         # add player buttons/player bar/volume widget
-        self.player = PlayerControls(self.data_handler)
+        self.player = AIrway_GUI.widgets.PlayerControls(self.data_handler)
         self.main_layout.addWidget(self.player, 0, 0, 1, 1)
 
         # add annotate precise widget
-        self.annotate_precise_widget = AnnotatePreciseWidget(self.audio_player, self.data_handler)
+        self.annotate_precise_widget = AIrway_GUI.widgets.AnnotatePreciseWidget(self.audio_player, self.data_handler)
         self.main_layout.addWidget(self.annotate_precise_widget, 1, 0, 1, 1)
 
         # add table widget
-        table_widget = TableWidget(self.audio_player, self.data_handler, self.annotate_precise_widget, self)
+        table_widget = AIrway_GUI.widgets.TableWidget(self.audio_player, self.data_handler, self.annotate_precise_widget, self)
         self.data_handler.table_widget = table_widget
         self.main_layout.addWidget(table_widget, 0, 1, 3, 1)
 
@@ -101,14 +95,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.filename = path.stem
 
         if self.initialized is False:
-            self.data_handler = DataHandler(path)
+            self.data_handler = AIrway_GUI.helpers.DataHandler(path)
             self._init_ui()
             self.initialized = True
         else:
             self.save_path = None
             for i in reversed(range(self.main_layout.count())):
                 self.main_layout.itemAt(i).widget().setParent(None)
-            self.data_handler = DataHandler(path)
+            self.data_handler = AIrway_GUI.helpers.DataHandler(path)
             self._init_ui()
 
     def _open(self):
@@ -127,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dict_ = fl.load(str(d_path))
         wav_file_path = str(d_path.parent) + '/' + dict_['Filename']
         if os.path.exists(wav_file_path):
-            if get_md5_hash(wav_file_path) != dict_['FileHash']:
+            if AIrway_GUI.helpers.get_md5_hash(wav_file_path) != dict_['FileHash']:
                 self._error_messagebox(f'File with name "{dict_["Filename"]}" is not the same used in "{d_path.name}" '
                                        f'(detected different MD5 hashes).')
                 return
@@ -139,7 +133,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
         if self.initialized is False:
-            self.data_handler = DataHandler(audio_path)
+            self.data_handler = AIrway_GUI.helpers.DataHandler(audio_path)
             self._init_ui()
             self.data_handler.load_annotations(dict_)
             self.initialized = True
@@ -147,7 +141,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.save_path = None
             for i in reversed(range(self.main_layout.count())):
                 self.main_layout.itemAt(i).widget().setParent(None)
-            self.data_handler = DataHandler(audio_path)
+            self.data_handler = AIrway_GUI.helpers.DataHandler(audio_path)
             self._init_ui()
             self.data_handler.load_annotations(dict_)
 
@@ -203,10 +197,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.bar_graph_window is None:
             self.bar_graph_action.setChecked(True)
-            self.bar_graph_window = BarGraphWindow(self)
+            self.bar_graph_window = AIrway_GUI.widgets.BarGraphWindow(self)
             self.bar_graph_window.setFixedSize(400, 300)
             self.bar_graph_window.setWindowTitle("AIrway")
-            self.bar_graph_window.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+            #self.bar_graph_window.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+            self.bar_graph_window.setWindowIcon(QtGui.QIcon("images/logo.png"))
             self.bar_graph_window.show()
         else:
             self.close_bar_graph_window()
@@ -261,7 +256,8 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setWindowTitle('Saving')
         msg.setText(f'Saved annotations to \n "{path}"')
         msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+        #msg.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+        msg.setWindowIcon(QtGui.QIcon("images/logo.png"))
         msg.exec_()
 
     ##################################################################################
@@ -274,7 +270,8 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setWindowTitle('Error')
         msg.setText(error_msg)
         msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+        #msg.setWindowIcon(QtGui.QIcon("AIrway_GUI/images/logo.png"))
+        msg.setWindowIcon(QtGui.QIcon("images/logo.png"))
         msg.exec_()
 
     def _ask_save(self):

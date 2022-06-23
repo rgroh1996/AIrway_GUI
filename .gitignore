@@ -133,3 +133,5 @@ dmypy.json
 .airway
 *.wav
 *.airway
+*_windows_*
+*_mac_*
