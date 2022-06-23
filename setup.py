@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='airway_gui',
-    version='0.1.1',
+    version='0.0.2',
     description='The AIrway GUI Python package',
     url='https://github.com/rgroh1996/AIrway_GUI',
     author='René Groh',
